@@ -1,0 +1,80 @@
+---
+title: "Exam 2"
+author: "Iris Reyes"
+output: html_document
+---
+
+```{r setup, echo=FALSE, results='hide', message=FALSE}
+# clear environment
+rm(list=ls(all=TRUE))
+
+#calling necessary packages
+library(rio)
+library(dplyr)
+library(WDI)
+library(lubridate)
+
+# importing college scorecard data
+college_scorecard <- import("2021_exam2_data.xlsx", which = 4)
+```
+
+
+```{r, message=FALSE}
+# creating summary of college scorecard data
+summary(college_scorecard)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+# subsetting college scorecard data by 2014 and 2015 and had 4 year degrees
+small_scorecard1 = subset(college_scorecard, year == c(2014, 2015) & pred_degree_awarded_ipeds == 3)
+
+# subsetting college scorecard data for Texas and Louisiana
+small_scorecard = subset(small_scorecard1, state_abbr == c("TX", "LA"))
+
+# removing small_scorecard1
+rm(small_scorecard1)
+
+
+# collapsing data by year and state
+even_smaller_scorecard <-
+  small_scorecard %>%
+  na.omit("count_working") %>% 
+  group_by(state_abbr) %>% # tell R the unique IDs
+  summarize(across(where(is.numeric), sum)) %>% # summarize numeric vars by sum
+  select(-c("year", "unitid", "pred_degree_awarded_ipeds", "count_not_working", "earnings_med")) # drop transaction id (no longer relevant)
+```
+
+```{r, echo=FALSE, results='hide'}
+# importing avocado data set
+avocados <- import("2021_exam2_data.xlsx", which = 2)
+
+# checking if date is in year, month, date
+ymd(avocados$date)
+
+# collapsing by date
+avocados <-
+avocados %>%
+dplyr::mutate(year = lubridate::year(avocados$date))
+
+
+```
+
+```{r, echo=FALSE, results='hide'}
+# loading the dataset
+training <- import("2021_exam2_data.xlsx", which = 2)
+
+```
+
+```{r, echo=FALSE, results='hide'}
+# loading the dataset
+titanic <- import("2021_exam2_data.xlsx", which = 1)
+```
+
+```{r, message=FALSE}
+# creating summary of titanic data
+summary(titanic)
+```
+
+```{r,echo=FALSE, message=FALSE}
+pdf("exam2")
+```
